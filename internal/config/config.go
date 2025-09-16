@@ -10,9 +10,11 @@ import (
 
 // Config holds all configuration for our application
 type Config struct {
-	Server   ServerConfig   `mapstructure:"server"`
-	Weather  WeatherConfig  `mapstructure:"weather"`
-	Database DatabaseConfig `mapstructure:"database"`
+	Server    ServerConfig    `mapstructure:"server"`
+	Weather   WeatherConfig   `mapstructure:"weather"`
+	Database  DatabaseConfig  `mapstructure:"database"`
+	Telemetry TelemetryConfig `mapstructure:"telemetry"`
+	ServiceB  ServiceBConfig  `mapstructure:"service_b"`
 }
 
 // ServerConfig holds server configuration
@@ -34,6 +36,16 @@ type DatabaseConfig struct {
 	Username string `mapstructure:"username"`
 	Password string `mapstructure:"password"`
 	Database string `mapstructure:"database"`
+}
+
+// TelemetryConfig holds telemetry configuration
+type TelemetryConfig struct {
+	ZipkinEndpoint string `mapstructure:"zipkin_endpoint"`
+}
+
+// ServiceBConfig holds Service B configuration
+type ServiceBConfig struct {
+	URL string `mapstructure:"url"`
 }
 
 // LoadConfig loads configuration from file and environment variables
@@ -80,6 +92,8 @@ func setDefaults() {
 	viper.SetDefault("server.host", "0.0.0.0")
 	viper.SetDefault("weather.base_url", "http://api.weatherapi.com/v1")
 	viper.SetDefault("weather.api_key", "")
+	viper.SetDefault("telemetry.zipkin_endpoint", "http://localhost:9411/api/v2/spans")
+	viper.SetDefault("service_b.url", "http://localhost:8081")
 }
 
 // bindEnvVars binds environment variables to configuration keys
@@ -91,6 +105,12 @@ func bindEnvVars() {
 	// Weather API configuration
 	viper.BindEnv("weather.api_key", "WEATHER_API_KEY")
 	viper.BindEnv("weather.base_url", "WEATHER_BASE_URL")
+
+	// Telemetry configuration
+	viper.BindEnv("telemetry.zipkin_endpoint", "ZIPKIN_ENDPOINT")
+
+	// Service B configuration
+	viper.BindEnv("service_b.url", "SERVICE_B_URL")
 }
 
 // GetServerAddress returns the server address

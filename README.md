@@ -1,6 +1,13 @@
 # 🌡️ CEP Temperatura API
 
-Sistema em Go que recebe um CEP brasileiro e retorna a temperatura atual da cidade em Celsius, Fahrenheit e Kelvin.
+Sistema distribuído em Go com OpenTelemetry + Zipkin que recebe um CEP brasileiro e retorna a temperatura atual da cidade em Celsius, Fahrenheit e Kelvin.
+
+## 🏗️ Arquitetura
+
+- **Serviço A**: Validação de entrada e proxy para Serviço B
+- **Serviço B**: Orquestração (busca CEP → busca temperatura → conversão)
+- **Zipkin**: Tracing distribuído e observabilidade
+- **OpenTelemetry**: Instrumentação e coleta de métricas
 
 ## 🚀 API Live
 
@@ -9,11 +16,14 @@ Sistema em Go que recebe um CEP brasileiro e retorna a temperatura atual da cida
 ### Exemplos de Uso
 
 ```bash
-# Temperatura de São Paulo
-curl "https://cep-temperatura-667491814881.southamerica-east1.run.app/temperature/01310100"
+# Temperatura de São Paulo (via Serviço A)
+curl -X POST http://localhost:8080/cep \
+  -H "Content-Type: application/json" \
+  -d '{"cep":"01310100"}'
 
-# Health check
-curl "https://cep-temperatura-667491814881.southamerica-east1.run.app/health"
+# Health checks
+curl http://localhost:8080/health  # Serviço A
+curl http://localhost:8081/health  # Serviço B
 ```
 
 ## 📋 Requisitos
@@ -23,25 +33,43 @@ curl "https://cep-temperatura-667491814881.southamerica-east1.run.app/health"
 
 ## 🛠️ Instalação Local
 
+### Opção 1: Docker Compose (Recomendado)
+
 1. **Clone e configure**
 ```bash
-# Clone 
 git clone <repository-url>
 cd cep-temperatura
-
-# Setup env
-cp env.example .env
-# preencha com sua API
-
+./scripts/dev-setup.sh
 ```
 
-2. **Execute**
+2. **Inicie os serviços**
 ```bash
-# rodar docker
-./scripts/test-docker.sh
+docker-compose up --build
+```
 
-# ou,
-go run cmd/main.go
+3. **Teste a aplicação**
+```bash
+./scripts/test-services.sh
+```
+
+### Opção 2: Desenvolvimento Local
+
+1. **Configure o ambiente**
+```bash
+cp env.example .env
+# Edite .env com sua WEATHER_API_KEY
+```
+
+2. **Execute os serviços**
+```bash
+# Terminal 1 - Serviço B
+go run cmd/service-b/main.go
+
+# Terminal 2 - Serviço A  
+go run cmd/service-a/main.go
+
+# Terminal 3 - Zipkin
+docker run -d -p 9411:9411 openzipkin/zipkin
 ```
 
 ## 🧪 Testes
@@ -56,13 +84,23 @@ go test ./...
 
 ## 📡 Endpoints
 
-### GET /temperature/:cep
+### Serviço A (Porta 8080)
 
-Retorna temperatura para o CEP informado.
+#### POST /cep
 
-**Exemplo de resposta:**
+Valida CEP e encaminha para Serviço B.
+
+**Request:**
 ```json
 {
+  "cep": "01310100"
+}
+```
+
+**Resposta de sucesso (200):**
+```json
+{
+  "city": "São Paulo",
   "temp_C": 21.4,
   "temp_F": 70.52,
   "temp_K": 294.4
@@ -72,10 +110,34 @@ Retorna temperatura para o CEP informado.
 **Códigos de erro:**
 - `422` - CEP inválido (não tem 8 dígitos)
 - `404` - CEP não encontrado
+- `500` - Erro interno
 
-### GET /health
+#### GET /health
 
-Verificação de saúde da API.
+Health check do Serviço A.
+
+### Serviço B (Porta 8081)
+
+#### GET /temperature/:cep
+
+Busca temperatura para CEP (usado internamente pelo Serviço A).
+
+#### GET /health
+
+Health check do Serviço B.
+
+## 🔍 Observabilidade
+
+### Zipkin UI
+- **URL**: http://localhost:9411
+- **Funcionalidades**: Traces distribuídos, latência, dependências
+
+### Spans Implementados
+- `validate-cep`: Validação de formato do CEP
+- `fetch-location`: Busca de localização via ViaCEP
+- `fetch-temperature`: Busca de temperatura via WeatherAPI
+- `convert-temperatures`: Conversão entre escalas
+- `call-service-b`: Chamada entre serviços
 
 ## 🏗️ Arquitetura
 

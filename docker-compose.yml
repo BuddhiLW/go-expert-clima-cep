@@ -1,17 +1,35 @@
-version: '3.8'
 
 services:
-  cep-temperatura:
-    build: .
+  # Zipkin para tracing distribuído
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+    networks:
+      - cep-temperatura-network
+
+  # Serviço A (Input validation e proxy)
+  service-a:
+    build:
+      context: .
+      dockerfile: Dockerfile.service-a
+    container_name: service-a
     ports:
       - "8080:8080"
-    env_file:
-      - .env
     environment:
-      - PORT=${PORT:-8080}
-      - HOST=${HOST:-0.0.0.0}
+      - PORT=8080
+      - HOST=0.0.0.0
       - WEATHER_API_KEY=${WEATHER_API_KEY}
-      - WEATHER_BASE_URL=${WEATHER_BASE_URL:-http://api.weatherapi.com/v1}
+      - SERVICE_B_URL=http://service-b:8081
+      - ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
+    depends_on:
+      - zipkin
+      - service-b
+    networks:
+      - cep-temperatura-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
@@ -19,3 +37,33 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  # Serviço B (Orquestração de temperatura)
+  service-b:
+    build:
+      context: .
+      dockerfile: Dockerfile.service-b
+    container_name: service-b
+    ports:
+      - "8081:8081"
+    environment:
+      - PORT=8081
+      - HOST=0.0.0.0
+      - WEATHER_API_KEY=${WEATHER_API_KEY}
+      - WEATHER_BASE_URL=http://api.weatherapi.com/v1
+      - ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
+    depends_on:
+      - zipkin
+    networks:
+      - cep-temperatura-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  cep-temperatura-network:
+    driver: bridge

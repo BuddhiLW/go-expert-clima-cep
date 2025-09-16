@@ -5,3 +5,9 @@ server:
 weather:
   api_key: ""
   base_url: "http://api.weatherapi.com/v1"
+
+telemetry:
+  zipkin_endpoint: "http://localhost:9411/api/v2/spans"
+
+service_b:
+  url: "http://localhost:8081"

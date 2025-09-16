@@ -1,0 +1,51 @@
+# Build stage
+FROM golang:1.25-alpine AS builder
+
+WORKDIR /app
+
+# Copy go mod and sum files
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod tidy
+
+# Copy source code
+COPY . .
+
+# Build arguments for non-sensitive environment variables
+ARG PORT=8081
+ARG HOST=0.0.0.0
+
+# Set build-time environment variables (non-sensitive)
+ENV PORT=$PORT
+ENV HOST=$HOST
+
+# Build the application
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main cmd/service-b/main.go
+
+# Final stage
+FROM alpine:latest
+
+# Install ca-certificates for HTTPS requests
+RUN apk --no-cache add ca-certificates wget
+
+WORKDIR /root/
+
+# Copy the binary from builder stage
+COPY --from=builder /app/main .
+
+# Copy configuration files
+COPY configs/ ./configs/
+
+# Expose port
+EXPOSE 8081
+
+# Set default environment variables (can be overridden at runtime)
+ENV PORT=8081
+ENV HOST=0.0.0.0
+ENV WEATHER_API_KEY=""
+ENV WEATHER_BASE_URL="http://api.weatherapi.com/v1"
+ENV ZIPKIN_ENDPOINT="http://zipkin:9411/api/v2/spans"
+
+# Run the application
+CMD ["./main"]
