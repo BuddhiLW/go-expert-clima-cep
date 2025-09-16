@@ -43,15 +43,18 @@ func main() {
 
 	// Configurar roteador
 	router := gin.Default()
-	
+
 	// Middleware de tracing
 	router.Use(telemetry.GinMiddleware())
-	
-	// Rotas
-	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok", "service": "service-a"})
-	})
-	router.POST("/cep", handler.ValidateAndForwardCEP)
+
+	// Rotas de health
+	router.GET("/health", healthHandler.HealthCheck)
+	router.GET("/health/detailed", healthHandler.HealthCheckDetailed)
+	router.GET("/ready", healthHandler.ReadinessCheck)
+	router.GET("/live", healthHandler.LivenessCheck)
+
+	// Rotas de serviço
+	router.POST("/cep", serviceHandler.ValidateAndForwardCEP)
 
 	// Iniciar servidor
 	address := cfg.GetServerAddress()

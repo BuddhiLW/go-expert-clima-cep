@@ -69,6 +69,12 @@ func (h *HealthHandler) HealthCheck(c *gin.Context) {
 		attribute.String("status", response.Status),
 	)
 
+	// Suportar tanto GET quanto HEAD requests
+	if c.Request.Method == "HEAD" {
+		c.Status(http.StatusOK)
+		return
+	}
+
 	c.JSON(http.StatusOK, response)
 }
 
@@ -76,7 +82,7 @@ func (h *HealthHandler) HealthCheck(c *gin.Context) {
 func (h *HealthHandler) HealthCheckDetailed(c *gin.Context) {
 	ctx := c.Request.Context()
 	tracer := otel.Tracer("health-check-detailed")
-	
+
 	ctx, span := tracer.Start(ctx, "health-check-detailed")
 	defer span.End()
 
@@ -184,6 +190,12 @@ func (h *HealthHandler) ReadinessCheck(c *gin.Context) {
 		attribute.String("status", response.Status),
 	)
 
+	// Suportar tanto GET quanto HEAD requests
+	if c.Request.Method == "HEAD" {
+		c.Status(http.StatusOK)
+		return
+	}
+
 	c.JSON(http.StatusOK, response)
 }
 
@@ -209,6 +221,12 @@ func (h *HealthHandler) LivenessCheck(c *gin.Context) {
 		attribute.String("service", response.Service),
 		attribute.String("status", response.Status),
 	)
+
+	// Suportar tanto GET quanto HEAD requests
+	if c.Request.Method == "HEAD" {
+		c.Status(http.StatusOK)
+		return
+	}
 
 	c.JSON(http.StatusOK, response)
 }

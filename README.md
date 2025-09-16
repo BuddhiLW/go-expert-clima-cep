@@ -112,9 +112,14 @@ Valida CEP e encaminha para Serviço B.
 - `404` - CEP não encontrado
 - `500` - Erro interno
 
-#### GET /health
+#### Health Endpoints
 
-Health check do Serviço A.
+- `GET|HEAD /health` - Health check básico
+- `GET /health/detailed` - Health check detalhado com dependências
+- `GET|HEAD /ready` - Readiness check (pronto para receber tráfego)
+- `GET|HEAD /live` - Liveness check (serviço está vivo)
+
+> **Nota**: Os endpoints `/health`, `/ready` e `/live` suportam tanto GET quanto HEAD requests para compatibilidade com health checks do Docker e Kubernetes.
 
 ### Serviço B (Porta 8081)
 
@@ -122,9 +127,14 @@ Health check do Serviço A.
 
 Busca temperatura para CEP (usado internamente pelo Serviço A).
 
-#### GET /health
+#### Health Endpoints
 
-Health check do Serviço B.
+- `GET|HEAD /health` - Health check básico
+- `GET /health/detailed` - Health check detalhado com dependências
+- `GET|HEAD /ready` - Readiness check (pronto para receber tráfego)
+- `GET|HEAD /live` - Liveness check (serviço está vivo)
+
+> **Nota**: Os endpoints `/health`, `/ready` e `/live` suportam tanto GET quanto HEAD requests para compatibilidade com health checks do Docker e Kubernetes.
 
 ## 🔍 Observabilidade
 

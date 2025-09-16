@@ -13,11 +13,29 @@ sleep 10
 # Testar health checks
 echo "🔍 Testando health checks..."
 
-echo "Testando Serviço A..."
+echo "Testando Serviço A - Health básico..."
 curl -s http://localhost:8080/health | jq .
 
-echo -e "\nTestando Serviço B..."
+echo -e "\nTestando Serviço A - Health detalhado..."
+curl -s http://localhost:8080/health/detailed | jq .
+
+echo -e "\nTestando Serviço A - Readiness..."
+curl -s http://localhost:8080/ready | jq .
+
+echo -e "\nTestando Serviço A - Liveness..."
+curl -s http://localhost:8080/live | jq .
+
+echo -e "\nTestando Serviço B - Health básico..."
 curl -s http://localhost:8081/health | jq .
+
+echo -e "\nTestando Serviço B - Health detalhado..."
+curl -s http://localhost:8081/health/detailed | jq .
+
+echo -e "\nTestando Serviço B - Readiness..."
+curl -s http://localhost:8081/ready | jq .
+
+echo -e "\nTestando Serviço B - Liveness..."
+curl -s http://localhost:8081/live | jq .
 
 # Testar CEP válido
 echo -e "\n🌡️  Testando CEP válido..."

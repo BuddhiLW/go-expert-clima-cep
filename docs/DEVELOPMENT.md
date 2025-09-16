@@ -82,6 +82,37 @@ curl http://localhost:8081/health
 ./scripts/test-services.sh
 ```
 
+### Health Checks
+
+#### Health Básico
+```bash
+curl http://localhost:8080/health
+curl http://localhost:8081/health
+```
+
+#### Health Detalhado (com dependências)
+```bash
+curl http://localhost:8080/health/detailed
+curl http://localhost:8081/health/detailed
+```
+
+#### Readiness Check (Kubernetes)
+```bash
+curl http://localhost:8080/ready
+curl http://localhost:8081/ready
+```
+
+#### Liveness Check (Kubernetes)
+```bash
+curl http://localhost:8080/live
+curl http://localhost:8081/live
+```
+
+#### Teste Automatizado de Health
+```bash
+./scripts/test-health.sh
+```
+
 ## 🔍 Observabilidade
 
 ### Zipkin UI

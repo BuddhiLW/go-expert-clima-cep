@@ -37,21 +37,26 @@ func main() {
 	cepService := services.NewCEPService()
 	weatherService := services.NewWeatherService(cfg)
 	temperatureService := services.NewTemperatureService()
+	httpClient := services.NewHTTPClient()
 
-	// Criar handler
-	handler := handlers.NewTemperatureHandler(cepService, weatherService, temperatureService)
+	// Criar handlers
+	serviceHandler := handlers.NewTemperatureHandler(cepService, weatherService, temperatureService)
+	healthHandler := handlers.NewHealthHandler(cepService, weatherService, httpClient, "")
 
 	// Configurar roteador
 	router := gin.Default()
-	
+
 	// Middleware de tracing
 	router.Use(telemetry.GinMiddleware())
-	
-	// Rotas
-	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok", "service": "service-b"})
-	})
-	router.GET("/temperature/:cep", handler.GetTemperature)
+
+	// Rotas de health
+	router.GET("/health", healthHandler.HealthCheck)
+	router.GET("/health/detailed", healthHandler.HealthCheckDetailed)
+	router.GET("/ready", healthHandler.ReadinessCheck)
+	router.GET("/live", healthHandler.LivenessCheck)
+
+	// Rotas de serviço
+	router.GET("/temperature/:cep", serviceHandler.GetTemperature)
 
 	// Iniciar servidor
 	address := cfg.GetServerAddress()
