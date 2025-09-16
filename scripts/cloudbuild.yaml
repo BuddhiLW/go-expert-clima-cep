@@ -1,0 +1,44 @@
+steps:
+  # Build da imagem Docker com variáveis de ambiente
+  - name: 'gcr.io/cloud-builders/docker'
+    args: 
+      - 'build'
+      - '--build-arg'
+      - 'PORT=$_PORT'
+      - '--build-arg'
+      - 'HOST=$_HOST'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/cep-temperatura:latest'
+      - '.'
+  
+  # Push da imagem para Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/cep-temperatura:latest']
+  
+  # Deploy no Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'cep-temperatura'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/cep-temperatura:latest'
+      - '--platform'
+      - 'managed'
+      - '--region'
+      - 'southamerica-east1'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'WEATHER_API_KEY=$_WEATHER_API_KEY,HOST=$_HOST'
+      - '--memory'
+      - '512Mi'
+      - '--cpu'
+      - '1'
+      - '--max-instances'
+      - '10'
+      - '--port'
+      - '8080'
+
+images:
+  - 'gcr.io/$PROJECT_ID/cep-temperatura:latest'

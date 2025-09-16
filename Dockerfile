@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.21-alpine AS builder
+FROM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
@@ -12,13 +12,11 @@ RUN go mod tidy
 # Copy source code
 COPY . .
 
-# Build arguments for environment variables
-ARG WEATHER_API_KEY
+# Build arguments for non-sensitive environment variables
 ARG PORT=8080
 ARG HOST=0.0.0.0
 
-# Set build-time environment variables
-ENV WEATHER_API_KEY=$WEATHER_API_KEY
+# Set build-time environment variables (non-sensitive)
 ENV PORT=$PORT
 ENV HOST=$HOST
 
@@ -44,6 +42,7 @@ EXPOSE 8080
 
 # Set default environment variables (can be overridden at runtime)
 ENV PORT=8080
+ENV WEATHER_API_KEY=""
 
 # Run the application
 CMD ["./main"]

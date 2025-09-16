@@ -80,7 +80,7 @@ gcloud run deploy cep-temperatura \
   --platform managed \
   --region southamerica-east1 \
   --allow-unauthenticated \
-  --set-env-vars WEATHER_API_KEY=b5d4215a52bf4e2da2f144209251609
+  --set-env-vars WEATHER_API_KEY=your_weather_api_key_here
 ```
 
 ## 🔄 Deploy com GitHub Actions
@@ -187,7 +187,7 @@ curl https://sua-url.run.app/health
 
 ```bash
 gcloud run services update cep-temperatura \
-  --set-env-vars "WEATHER_API_KEY=nova_chave,PORT=8080"
+  --set-env-vars "WEATHER_API_KEY=your_weather_api_key_here,PORT=8080"
 ```
 
 ### 2. Recursos

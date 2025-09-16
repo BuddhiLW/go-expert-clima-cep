@@ -79,7 +79,7 @@ func setDefaults() {
 	viper.SetDefault("server.port", "8080")
 	viper.SetDefault("server.host", "0.0.0.0")
 	viper.SetDefault("weather.base_url", "http://api.weatherapi.com/v1")
-	viper.SetDefault("weather.api_key", "b5d4...")
+	viper.SetDefault("weather.api_key", "")
 }
 
 // bindEnvVars binds environment variables to configuration keys

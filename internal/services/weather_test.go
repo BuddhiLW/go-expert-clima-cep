@@ -41,7 +41,7 @@ func TestWeatherService_GetTemperature(t *testing.T) {
 	// Criar serviço com URL do mock
 	weatherService := &weatherService{
 		baseURL: server.URL,
-		apiKey:  "b5d4...",
+		apiKey:  "test_api_key",
 		client:  &http.Client{},
 	}
 
@@ -65,7 +65,7 @@ func TestWeatherService_GetTemperature_Error(t *testing.T) {
 
 	weatherService := &weatherService{
 		baseURL: server.URL,
-		apiKey:  "b5d4...",
+		apiKey:  "test_api_key",
 		client:  &http.Client{},
 	}
 
