@@ -48,19 +48,32 @@ git clone <repository-url>
 cd cep-temperatura
 ```
 
-2. **Instale as dependências**
+2. **Configure o ambiente**
+```bash
+./setup-env.sh
+```
+
+3. **Execute a aplicação**
+```bash
+./main
+```
+
+**Ou manualmente:**
+
+1. **Instale as dependências**
 ```bash
 go mod tidy
 ```
 
-3. **Configure a chave da API (opcional)**
+2. **Crie o arquivo .env**
 ```bash
-export WEATHER_API_KEY=b5d4215a52bf4e2da2f144209251609
+cp env.example .env
+# Edite o arquivo .env com suas configurações
 ```
 
-4. **Execute a aplicação**
+3. **Execute a aplicação**
 ```bash
-go run main.go
+go run cmd/main.go
 ```
 
 ### Execução com Docker
@@ -151,10 +164,19 @@ Endpoint de verificação de saúde da API.
 
 ### Variáveis de Ambiente
 
-| Variável | Descrição | Padrão |
-|----------|-----------|--------|
-| `PORT` | Porta do servidor | `8080` |
-| `WEATHER_API_KEY` | Chave da WeatherAPI | `b5d4215a52bf4e2da2f144209251609` |
+| Variável | Descrição | Padrão | Arquivo |
+|----------|-----------|--------|---------|
+| `PORT` | Porta do servidor | `8080` | `.env` |
+| `HOST` | Host do servidor | `0.0.0.0` | `.env` |
+| `WEATHER_API_KEY` | Chave da WeatherAPI | `b5d4215a52bf4e2da2f144209251609` | `.env` |
+| `WEATHER_BASE_URL` | URL base da WeatherAPI | `http://api.weatherapi.com/v1` | `.env` |
+
+### Arquivos de Configuração
+
+- **`.env`** - Variáveis de ambiente (criado automaticamente pelo `setup-env.sh`)
+- **`configs/config.yaml`** - Configuração padrão
+- **`configs/config.dev.yaml`** - Configuração de desenvolvimento
+- **`configs/config.prod.yaml`** - Configuração de produção
 
 ### APIs Externas
 

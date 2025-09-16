@@ -8,7 +8,7 @@ set -e
 PROJECT_ID=${1:-"your-project-id"}
 SERVICE_NAME="cep-temperatura"
 REGION="southamerica-east1"
-WEATHER_API_KEY="b5d4215a52bf4e2da2f144209251609"
+WEATHER_API_KEY=${WEATHER_API_KEY:-"b5d4..."}
 
 echo "🚀 Iniciando deploy no Google Cloud Run"
 echo "📋 Projeto: $PROJECT_ID"
@@ -37,9 +37,21 @@ gcloud services enable run.googleapis.com
 gcloud services enable cloudbuild.googleapis.com
 gcloud services enable containerregistry.googleapis.com
 
-# Build da imagem
+# Carregar variáveis de ambiente
+if [ -f ".env" ]; then
+    echo "📖 Carregando variáveis de ambiente do arquivo .env..."
+    export $(grep -v '^#' .env | xargs)
+else
+    echo "⚠️  Arquivo .env não encontrado, usando valores padrão"
+fi
+
+# Build da imagem com variáveis de ambiente
 echo "🏗️  Fazendo build da imagem Docker..."
-sudo docker build -t gcr.io/$PROJECT_ID/$SERVICE_NAME:latest .
+sudo docker build \
+  --build-arg WEATHER_API_KEY="$WEATHER_API_KEY" \
+  --build-arg PORT="${PORT:-8080}" \
+  --build-arg HOST="${HOST:-0.0.0.0}" \
+  -t gcr.io/$PROJECT_ID/$SERVICE_NAME:latest .
 
 # Push da imagem
 echo "📤 Enviando imagem para Google Container Registry..."
@@ -52,7 +64,7 @@ gcloud run deploy $SERVICE_NAME \
   --platform managed \
   --region $REGION \
   --allow-unauthenticated \
-  --set-env-vars WEATHER_API_KEY=$WEATHER_API_KEY \
+  --set-env-vars WEATHER_API_KEY=$WEATHER_API_KEY,PORT=8080,HOST=0.0.0.0 \
   --memory 512Mi \
   --cpu 1 \
   --max-instances 10 \

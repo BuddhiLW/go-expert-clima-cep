@@ -6,8 +6,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 
+	"cep-temperatura/internal/config"
 	"cep-temperatura/internal/models"
 )
 
@@ -23,15 +23,10 @@ type weatherService struct {
 }
 
 // NewWeatherService cria uma nova instância do serviço de clima
-func NewWeatherService() WeatherService {
-	apiKey := os.Getenv("WEATHER_API_KEY")
-	if apiKey == "" {
-		apiKey = "b5d4215a52bf4e2da2f144209251609" // Chave padrão
-	}
-
+func NewWeatherService(cfg *config.Config) WeatherService {
 	return &weatherService{
-		baseURL: "http://api.weatherapi.com/v1",
-		apiKey:  apiKey,
+		baseURL: cfg.Weather.BaseURL,
+		apiKey:  cfg.Weather.APIKey,
 		client:  &http.Client{},
 	}
 }

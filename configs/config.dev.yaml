@@ -1,0 +1,8 @@
+server:
+  port: "8080"
+  host: "localhost"
+
+weather:
+  api_key: "b5d4215a52bf4e2da2f144209251609"
+  base_url: "http://api.weatherapi.com/v1"
+

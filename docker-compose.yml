@@ -5,9 +5,13 @@ services:
     build: .
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     environment:
-      - PORT=8080
-      - WEATHER_API_KEY=b5d4215a52bf4e2da2f144209251609
+      - PORT=${PORT:-8080}
+      - HOST=${HOST:-0.0.0.0}
+      - WEATHER_API_KEY=${WEATHER_API_KEY}
+      - WEATHER_BASE_URL=${WEATHER_BASE_URL:-http://api.weatherapi.com/v1}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]

@@ -12,8 +12,18 @@ RUN go mod tidy
 # Copy source code
 COPY . .
 
+# Build arguments for environment variables
+ARG WEATHER_API_KEY
+ARG PORT=8080
+ARG HOST=0.0.0.0
+
+# Set build-time environment variables
+ENV WEATHER_API_KEY=$WEATHER_API_KEY
+ENV PORT=$PORT
+ENV HOST=$HOST
+
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main cmd/main.go
 
 # Final stage
 FROM alpine:latest
@@ -26,12 +36,14 @@ WORKDIR /root/
 # Copy the binary from builder stage
 COPY --from=builder /app/main .
 
+# Copy configuration files
+COPY configs/ ./configs/
+
 # Expose port
 EXPOSE 8080
 
-# Set environment variables
+# Set default environment variables (can be overridden at runtime)
 ENV PORT=8080
-ARG WEATHER_API_KEY
 
 # Run the application
 CMD ["./main"]
