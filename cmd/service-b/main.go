@@ -51,9 +51,12 @@ func main() {
 
 	// Rotas de health
 	router.GET("/health", healthHandler.HealthCheck)
+	router.HEAD("/health", healthHandler.HealthCheck)
 	router.GET("/health/detailed", healthHandler.HealthCheckDetailed)
 	router.GET("/ready", healthHandler.ReadinessCheck)
+	router.HEAD("/ready", healthHandler.ReadinessCheck)
 	router.GET("/live", healthHandler.LivenessCheck)
+	router.HEAD("/live", healthHandler.LivenessCheck)
 
 	// Rotas de serviço
 	router.GET("/temperature/:cep", serviceHandler.GetTemperature)
